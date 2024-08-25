@@ -17,7 +17,7 @@ To run this project, you need to have Python installed on your system. Follow th
 1. **Clone the Repository:**
 
     ```bash
-    git clone https://github.com/your-username/Movie_Sentiment_Analysis.git
+    git clone https://github.com/Leon-AW/Movie_Sentiment_Analysis.git
     cd Movie_Sentiment_Analysis
     ```
 
