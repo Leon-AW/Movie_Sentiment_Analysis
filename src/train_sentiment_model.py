@@ -5,6 +5,7 @@ from gensim.models import Word2Vec
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 # Load the pre-trained Word2Vec model
 w2v_model = Word2Vec.load("models/word2vec_imdb.model")
@@ -60,14 +61,21 @@ def load_data(data_path):
 class FastTextClassifier(nn.Module):
     def __init__(self, embedding_dim):
         super(FastTextClassifier, self).__init__()
-        self.fc = nn.Linear(embedding_dim, 2)  # Output layer for binary classification
+        self.fc1 = nn.Linear(embedding_dim, 128)
+        self.dropout = nn.Dropout(p=0.5)
+        self.fc2 = nn.Linear(128, 2)  # Output layer for binary classification
 
     def forward(self, x):
-        return self.fc(x)
+        x = self.fc1(x)
+        x = torch.relu(x)
+        x = self.dropout(x)
+        x = self.fc2(x)
+        return x
 
 def train_model(model, train_loader, val_loader, num_epochs=10):
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.002)
+    optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-5)
+    scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3, verbose=True)
 
     for epoch in range(num_epochs):  # Number of epochs
         model.train()
@@ -108,13 +116,16 @@ def train_model(model, train_loader, val_loader, num_epochs=10):
         val_accuracy = 100 * correct / total
         print(f'Epoch [{epoch+1}/{num_epochs}], Validation Loss: {val_loss:.4f}, Validation Accuracy: {val_accuracy:.2f}%')
 
+        # Step the scheduler based on validation loss
+        scheduler.step(val_loss)
+
 def main():
     data_path = 'data/processed/IMDB_Dataset_Cleaned.csv'
     train_loader, val_loader, test_loader = load_data(data_path)
 
     model = FastTextClassifier(embedding_dim)
 
-    train_model(model, train_loader, val_loader, num_epochs=10)
+    train_model(model, train_loader, val_loader, num_epochs=20)
 
     # Save the trained model
     torch.save(model.state_dict(), "models/fasttext_classifier.pth")

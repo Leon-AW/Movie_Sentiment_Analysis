@@ -1,5 +1,3 @@
-# evaluate_model.py
-
 import torch
 from train_sentiment_model import FastTextClassifier, load_data, w2v_model, embedding_dim
 from sklearn.metrics import precision_score, recall_score, f1_score
