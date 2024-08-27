@@ -1,9 +1,13 @@
 import torch
 import random
 import pandas as pd
+import os
 from tqdm import tqdm
 from train_sentiment_model import FastTextClassifier, load_data, w2v_model, embedding_dim
 from sklearn.metrics import precision_score, recall_score, f1_score
+
+# Map numeric labels to sentiment strings
+LABEL_MAP = {0: 'positive', 1: 'negative'}
 
 def evaluate_model(model, test_loader, test_data):
     model.eval()
@@ -33,10 +37,13 @@ def evaluate_model(model, test_loader, test_data):
                 original_review = test_data.iloc[review_idx]['review']
                 cleaned_review = test_data.iloc[review_idx]['cleaned_review']
 
+                true_label = LABEL_MAP[label[i].item()]
+                predicted_label = LABEL_MAP[predicted[i].item()]
+
                 if predicted[i] == label[i]:
-                    correct_predictions.append((original_review, cleaned_review, label[i].item(), predicted[i].item()))
+                    correct_predictions.append((original_review, cleaned_review, true_label, predicted_label))
                 else:
-                    incorrect_predictions.append((original_review, cleaned_review, label[i].item(), predicted[i].item()))
+                    incorrect_predictions.append((original_review, cleaned_review, true_label, predicted_label))
 
     test_accuracy = 100 * correct / total
     print(f'\nTest Accuracy: {test_accuracy:.2f}%')
@@ -49,6 +56,19 @@ def evaluate_model(model, test_loader, test_data):
     print(f'Precision: {precision:.4f}')
     print(f'Recall: {recall:.4f}')
     print(f'F1 Score: {f1:.4f}')
+
+    # Ensure the results/metrics directory exists
+    os.makedirs('results/metrics', exist_ok=True)
+
+    # Save metrics to a file
+    metrics_file = os.path.join('results/metrics', 'evaluation_metrics.txt')
+    with open(metrics_file, 'w') as f:
+        f.write(f'Test Accuracy: {test_accuracy:.2f}%\n')
+        f.write(f'Precision: {precision:.4f}\n')
+        f.write(f'Recall: {recall:.4f}\n')
+        f.write(f'F1 Score: {f1:.4f}\n')
+
+    print(f'\nMetrics saved to {metrics_file}')
 
     # Show random 3 correct and 3 incorrect predictions
     print("\nSample Correct Predictions:")
@@ -68,7 +88,7 @@ def main():
     # Load the data and model
     _, _, test_loader = load_data(data_path)
     model = FastTextClassifier(embedding_dim)
-    model.load_state_dict(torch.load("models/fasttext_classifier.pth"))
+    model.load_state_dict(torch.load("models/fasttext_classifier_best.pth"))
 
     # Evaluate the model
     evaluate_model(model, test_loader, data)

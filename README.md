@@ -1,104 +1,134 @@
-# Movie Sentiment Analysis
+# Movie Sentiment Analysis with Word2Vec and FastText Classifier
 
-## Project Description
+This project implements a sentiment analysis pipeline for movie reviews using Word2Vec embeddings and a FastText-based neural network classifier. The goal is to classify movie reviews as either positive or negative based on the text content.
 
-This project aims to perform sentiment analysis on movie reviews using the IMDB dataset. The project includes two main components:
+## Data
 
-1. **Word Embedding Training:** We use the Skip-gram architecture to train word embeddings directly on the IMDB dataset. This allows us to capture the semantic relationships between words in the context of movie reviews.
+Movie Review data downloaded at Kaggle from: https://www.kaggle.com/datasets/lakshmi25npathi/imdb-dataset-of-50k-movie-reviews
 
-2. **Sentiment Analysis Using FastText:** After obtaining the word embeddings, we use the FastText classifier to predict the sentiment of the reviews (positive, negative, or neutral). The integration of word embeddings into the classifier aims to enhance the model's performance by providing richer word representations.
+## Best Model Performance
 
-This project demonstrates key concepts in Natural Language Processing (NLP) including text preprocessing, word embedding generation, and sentiment classification. It is designed to be both educational and practical, making it applicable to real-world sentiment analysis tasks.
+My best training of the model achieved the following scores:
 
-## Installation Instructions
+- Test Accuracy: 88.53%
+- Precision: 0.8839
+- Recall: 0.8872
+- F1 Score: 0.8855
 
-To run this project, you need to have Python installed on your system. Follow the instructions below to set up the environment:
+## Project Structure
 
-1. **Clone the Repository:**
+- `data_preprocessing.py`: Preprocesses the raw IMDB movie reviews dataset by cleaning the text, generating n-grams, and saving the processed data.
+- `train_word_embeddings.py`: Trains Word2Vec embeddings on the cleaned movie reviews, creating vector representations for words and n-grams.
+- `train_sentiment_model.py`: Trains a FastText-based neural network model on the vectorized movie reviews to classify sentiments.
+- `evaluate_model.py`: Evaluates the trained sentiment model on a test dataset and outputs performance metrics.
+- `self_judge_embedding.py`: Allows users to interact with the trained Word2Vec model to find similar words or n-grams.
+- `self_judge_sentiment.py`: Allows users to input their own movie reviews and predict the sentiment using the trained FastText model.
 
-    ```bash
-    git clone https://github.com/Leon-AW/Movie_Sentiment_Analysis.git
-    cd Movie_Sentiment_Analysis
-    ```
+## Installation
 
-2. **Create a Virtual Environment:**
+To set up the environment, install the required Python packages:
 
-    ```bash
-    python -m venv nlpenv
-    source nlpenv/bin/activate  # On Windows use: nlpenv\Scripts\activate
-    ```
+```bash
+pip install -r requirements.txt
+```
 
-3. **Install the Required Dependencies:**
+Additionally, ensure that NLTK datasets are downloaded:
 
-    Install the necessary Python packages listed in the `requirements.txt` file:
+```python
+import nltk
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+```
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+## Usage
 
-4. **Download the IMDB Dataset:**
+### 1. Preprocess the Data
 
-    You can download the IMDB dataset directly from [here](https://ai.stanford.edu/~amaas/data/sentiment/). After downloading, place the dataset in the `data/raw/` directory.
+Run the data preprocessing script:
 
-## Usage Examples
+```bash
+python data_preprocessing.py
+```
 
-Once the environment is set up and the dataset is in place, you can run the project components as follows:
+This will create a cleaned dataset in the `data/processed/` directory.
 
-1. **Preprocess the Data:**
+### 2. Train Word2Vec Embeddings
 
-    Run the data preprocessing script to clean and tokenize the text data:
+Train the Word2Vec embeddings on the cleaned dataset:
 
-    ```bash
-    python src/data_preprocessing.py
-    ```
+```bash
+python train_word_embeddings.py
+```
 
-2. **Train Word Embeddings:**
+The trained embeddings will be saved in the `models/` directory.
 
-    Use the Skip-gram model to train word embeddings on the preprocessed IMDB dataset:
+### 3. Train the Sentiment Classifier
 
-    ```bash
-    python src/train_word_embeddings.py
-    ```
+Train the sentiment analysis model:
 
-3. **Train the Sentiment Classifier:**
+```bash
+python train_sentiment_model.py
+```
 
-    Train the FastText classifier using the generated word embeddings:
+This script will train the model, apply early stopping based on validation loss, and save the best model to `models/fasttext_classifier_best.pth`. Training and validation loss and accuracy plots will be saved in the `results/plots/` directory.
 
-    ```bash
-    python src/train_sentiment_model.py
-    ```
+### 4. Evaluate the Model
 
-4. **Evaluate the Model:**
+Evaluate the trained model on the test set:
 
-    Evaluate the model’s performance on the test set and generate metrics:
+```bash
+python evaluate_model.py
+```
 
-    ```bash
-    python src/evaluate_model.py
-    ```
+This script calculates and prints the test accuracy, precision, recall, and F1 score. The metrics are also saved to `results/metrics/evaluation_metrics.txt`.
 
-## Directory Structure Explanation
+### 5. Interact with Word2Vec Embeddings
 
-The project directory is organized as follows:
+Explore the embeddings using the `self_judge_embedding.py` script:
 
-```plaintext
-Movie_Sentiment_Analysis/
-├── data/
-│   ├── raw/                # Contains the raw IMDB dataset
-│   └── processed/          # Contains processed datasets (e.g., tokenized text)
-├── src/
-│   ├── data_preprocessing.py # Script for data preprocessing
-│   ├── train_word_embeddings.py # Script for training word embeddings
-│   ├── train_sentiment_model.py # Script for training the sentiment analysis model
-│   └── evaluate_model.py       # Script for evaluating the model
-├── models/
-│   ├── word_embeddings/    # Stores trained word embeddings
-│   └── sentiment_model/    # Stores the trained sentiment analysis model
-├── logs/
-│   ├── training.log        # Logs for training sessions
-│   └── evaluation.log      # Logs for model evaluation
-├── results/
-│   ├── plots/              # Contains plots and visualizations
-│   └── metrics/            # Stores evaluation metrics (e.g., F1-score, accuracy)
-├── requirements.txt        # List of dependencies
-├── .gitignore              # Specifies files and directories to ignore in Git
-└── README.md               # Project description and instructions (this file)
+```bash
+python self_judge_embedding.py
+```
+
+You can input a word or n-gram to find the most similar terms based on the trained Word2Vec model.
+
+### 6. Predict Sentiment on Custom Reviews
+
+Use the `self_judge_sentiment.py` script to input your own movie reviews and get sentiment predictions:
+
+```bash
+python self_judge_sentiment.py
+```
+
+This script preprocesses the input review, vectorizes it using the Word2Vec embeddings, and predicts whether the sentiment is positive or negative.
+
+## Summary of Scripts
+
+- **data_preprocessing.py**
+  - Purpose: Preprocess the raw IMDB dataset by cleaning text, tokenizing, lemmatizing, and generating n-grams.
+  - Output: A cleaned and processed CSV file saved in `data/processed/`.
+
+- **train_word_embeddings.py**
+  - Purpose: Train Word2Vec embeddings on the processed text data.
+  - Output: A binary file containing the trained word vectors saved in `models/word2vec_imdb_v2.bin`.
+
+- **train_sentiment_model.py**
+  - Purpose: Train a FastText-based classifier using the vectorized n-grams to classify sentiments as positive or negative.
+  - Output: The best model is saved to `models/fasttext_classifier_best.pth`, and the final model is saved to `models/fasttext_classifier_final.pth`.
+
+- **evaluate_model.py**
+  - Purpose: Evaluate the trained sentiment classifier on the test dataset and print/save performance metrics.
+  - Output: Metrics saved in `results/metrics/evaluation_metrics.txt`.
+
+- **self_judge_embedding.py**
+  - Purpose: Allow users to explore the Word2Vec embeddings by finding similar words or n-grams.
+  - Output: Prints the most similar terms to a given input.
+
+- **self_judge_sentiment.py**
+  - Purpose: Allow users to input custom movie reviews and predict their sentiment using the trained model.
+  - Output: Prints the predicted sentiment for the input review.
+
+## License
+
+This project is open-source and available under the MIT License.

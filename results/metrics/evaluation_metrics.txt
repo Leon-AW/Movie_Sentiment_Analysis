@@ -1,0 +1,4 @@
+Test Accuracy: 88.53%
+Precision: 0.8839
+Recall: 0.8872
+F1 Score: 0.8855

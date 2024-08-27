@@ -21,8 +21,8 @@ class MyCorpus:
 
 def train_embeddings(data):
     """ Train Word2Vec model on the tokenized sentences with a progress bar """
-    # Tokenizing the sentences
-    tokenized_reviews = [word_tokenize(review) for review in data['cleaned_review']]
+    # The data['cleaned_review'] column already contains the n-grams as single tokens.
+    tokenized_reviews = [review.split() for review in data['cleaned_review']]
 
     # Creating the custom corpus with tqdm progress bar
     corpus = MyCorpus(tokenized_reviews)
@@ -30,13 +30,17 @@ def train_embeddings(data):
     # Training the Word2Vec model with tuned hyperparameters
     model = Word2Vec(
         sentences=corpus, 
-        vector_size=200,        # Increase vector size for more detailed embeddings
-        window=5,               # Context window size
-        min_count=1,            # Include more rare words
-        sg=1,                   # Use Skip-Gram model; try sg=0 for CBOW
-        workers=4,              # Number of worker threads
-        epochs=10               # Increase number of epochs
+        vector_size=200,        
+        window=5,               
+        min_count=5,
+        sg=1,                   
+        workers=4,              
+        epochs=10
     )
+    
+    # Check the vocabulary size
+    vocab_size = len(model.wv)
+    print(f"Vocabulary size: {vocab_size}")
     
     return model
 
@@ -50,9 +54,9 @@ def main():
     # Train Word2Vec embeddings with progress bar
     w2v_model = train_embeddings(imdb_data)
     
-    # Save the model
-    w2v_model.save("models/word2vec_imdb.model")
-    print("Word2Vec model trained and saved successfully!")
+    # Save only the word vectors
+    w2v_model.wv.save_word2vec_format("models/word2vec_imdb_v2.bin", binary=True)
+    print("Word2Vec vectors saved successfully!")
 
 if __name__ == "__main__":
     main()

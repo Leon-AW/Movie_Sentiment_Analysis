@@ -1,0 +1,26 @@
+# For text preprocessing and n-grams
+nltk==3.8.1
+# Ensure the necessary nltk data is downloaded
+# This should be run in a setup script or manually by users
+# nltk.download('punkt')
+# nltk.download('stopwords')
+# nltk.download('wordnet')
+
+# For data handling and processing
+pandas==1.5.3
+
+# For progress bars
+tqdm==4.64.1
+
+# For machine learning and deep learning
+torch==2.0.1
+scikit-learn==1.2.2
+
+# For word embeddings
+gensim==4.3.1
+
+# For plotting
+matplotlib==3.7.1
+
+# For handling file operations and OS-related tasks
+# No need to specify os and re as they are part of the Python standard library

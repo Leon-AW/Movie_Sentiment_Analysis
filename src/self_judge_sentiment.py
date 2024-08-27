@@ -1,29 +1,28 @@
 import torch
 import torch.nn as nn
-from train_sentiment_model import FastTextClassifier, w2v_model, embedding_dim
 import numpy as np
 import re
 from nltk.tokenize import word_tokenize
 import nltk
+from train_sentiment_model import FastTextClassifier, w2v_model, embedding_dim
+from data_preprocessing import preprocess_text  # Import the preprocessing function
 
 nltk.download('punkt')
 
-# Function to clean and preprocess the review
-def preprocess_review(review):
-    # Lowercase the review
-    review = review.lower()
+# Function to preprocess the review using the same logic as the training data
+def preprocess_review(review, n=2):
+    # Use the same preprocessing function as during training
+    cleaned_review = preprocess_text(review, n=n)
 
-    # Remove special characters and digits
-    review = re.sub(r'\d+', '', review)
-    review = re.sub(r'\W+', ' ', review)
+    # Tokenize the cleaned review
+    words = cleaned_review.split()
 
-    # Tokenize the review using word_tokenize (identical to training preprocessing)
-    words = word_tokenize(review)
+    # Print the preprocessed text
+    print(f"Preprocessed Text: {cleaned_review}")
+    print(f"Tokenized Words/N-grams: {words}")
 
-    print(f"Preprocessed Words: {words}")  # Display the words after preprocessing
-
-    # Convert words to vectors using Word2Vec
-    vectors = [w2v_model.wv[word] for word in words if word in w2v_model.wv]
+    # Convert words or n-grams to vectors using Word2Vec
+    vectors = [w2v_model[word] for word in words if word in w2v_model]
 
     # Average the vectors to get a single vector for the review
     if len(vectors) > 0:
@@ -46,7 +45,7 @@ def predict_sentiment(model, review):
 def main():
     # Load the trained model
     model = FastTextClassifier(embedding_dim)
-    model.load_state_dict(torch.load("models/fasttext_classifier.pth"))
+    model.load_state_dict(torch.load("models/fasttext_classifier_best.pth"))
 
     while True:
         # Input review
