@@ -125,7 +125,7 @@ def main():
 
     model = FastTextClassifier(embedding_dim)
 
-    train_model(model, train_loader, val_loader, num_epochs=20)
+    train_model(model, train_loader, val_loader, num_epochs=15)
 
     # Save the trained model
     torch.save(model.state_dict(), "models/fasttext_classifier.pth")
