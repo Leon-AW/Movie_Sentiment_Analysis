@@ -8,7 +8,7 @@ Movie Review data downloaded at Kaggle from: https://www.kaggle.com/datasets/lak
 
 ## Best Model Performance
 
-After implementing Noise Robust Learning techniques, the model performance improved slightly:
+After implementing Noise Robust Learning technique called "Detecting and filtering errors" (since about 3% of the data is noisy), the model performance improved slightly:
 
 - Test Accuracy: 88.72% (↑0.19%)
 - Precision: 0.8760 (↓0.0079)
