@@ -174,7 +174,7 @@ def main():
     # Ensure the results/plots directory exists
     os.makedirs('results/plots', exist_ok=True)
     
-    data_path = 'data/processed/IMDB_Dataset_Cleaned.csv'
+    data_path = 'data/processed/IMDB_Dataset_Cleaned_Filtered.csv'
     train_loader, val_loader, test_loader = load_data(data_path)
 
     model = FastTextClassifier(embedding_dim)

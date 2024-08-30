@@ -1,10 +1,14 @@
 import re
 import pandas as pd
+import numpy as np
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.util import ngrams
 from tqdm import tqdm
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.ensemble import IsolationForest
+from textblob import TextBlob
 
 import nltk
 nltk.download('punkt')
@@ -44,15 +48,56 @@ def preprocess_text(text, n=2):
     
     return ' '.join(words)
 
+def detect_anomalies(texts, contamination=0.03):
+    # Convert texts to TF-IDF features
+    vectorizer = TfidfVectorizer(max_features=5000)
+    X = vectorizer.fit_transform(texts)
+    
+    # Use Isolation Forest to detect anomalies
+    iso_forest = IsolationForest(contamination=contamination, random_state=42)
+    anomalies = iso_forest.fit_predict(X)
+    
+    return anomalies == -1  # True for anomalies, False for normal data points
+
+def sentiment_consistency_check(reviews, sentiments, threshold=0.5):
+    inconsistent = []
+    for review, sentiment in zip(reviews, sentiments):
+        blob = TextBlob(review)
+        polarity = blob.sentiment.polarity
+        
+        if (sentiment == 'positive' and polarity < -threshold) or \
+           (sentiment == 'negative' and polarity > threshold):
+            inconsistent.append(True)
+        else:
+            inconsistent.append(False)
+    
+    return inconsistent
+
 def main():
     dataset_path = 'data/raw/IMDB_Dataset.csv'
     imdb_data = pd.read_csv(dataset_path)
     
     tqdm.pandas(desc="Processing reviews")
-    imdb_data['cleaned_review'] = imdb_data['review'].progress_apply(lambda x: preprocess_text(x, n=2))  # Set n to 2 for bigrams
+    imdb_data['cleaned_review'] = imdb_data['review'].progress_apply(lambda x: preprocess_text(x, n=2))
     
-    imdb_data.to_csv('data/processed/IMDB_Dataset_Cleaned.csv', index=False)
-    print("Data preprocessing complete and saved to processed directory.")
+    # Detect anomalies
+    print("Detecting anomalies...")
+    anomalies = detect_anomalies(imdb_data['cleaned_review'])
+    
+    # Check sentiment consistency
+    print("Checking sentiment consistency...")
+    inconsistent = sentiment_consistency_check(imdb_data['review'], imdb_data['sentiment'])
+    
+    # Combine filters
+    suspicious = np.logical_or(anomalies, inconsistent)
+    
+    # Remove suspicious data points
+    clean_data = imdb_data[~suspicious].reset_index(drop=True)
+    
+    print(f"Removed {sum(suspicious)} suspicious data points out of {len(imdb_data)}.")
+    
+    clean_data.to_csv('data/processed/IMDB_Dataset_Cleaned_Filtered.csv', index=False)
+    print("Data preprocessing and filtering complete. Saved to processed directory.")
 
 if __name__ == "__main__":
     main()

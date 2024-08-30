@@ -46,7 +46,7 @@ def train_embeddings(data):
 
 def main():
     # Path to the cleaned dataset
-    dataset_path = 'data/processed/IMDB_Dataset_Cleaned.csv'
+    dataset_path = 'data/processed/IMDB_Dataset_Cleaned_Filtered.csv'
     
     # Load the cleaned text data
     imdb_data = load_data(dataset_path)

@@ -35,15 +35,14 @@ def evaluate_model(model, test_loader, test_data):
             for i in range(len(label)):
                 review_idx = batch_idx * test_loader.batch_size + i
                 original_review = test_data.iloc[review_idx]['review']
-                cleaned_review = test_data.iloc[review_idx]['cleaned_review']
 
                 true_label = LABEL_MAP[label[i].item()]
                 predicted_label = LABEL_MAP[predicted[i].item()]
 
                 if predicted[i] == label[i]:
-                    correct_predictions.append((original_review, cleaned_review, true_label, predicted_label))
+                    correct_predictions.append((original_review, true_label, predicted_label))
                 else:
-                    incorrect_predictions.append((original_review, cleaned_review, true_label, predicted_label))
+                    incorrect_predictions.append((original_review, true_label, predicted_label))
 
     test_accuracy = 100 * correct / total
     print(f'\nTest Accuracy: {test_accuracy:.2f}%')
@@ -73,11 +72,11 @@ def evaluate_model(model, test_loader, test_data):
     # Show random 3 correct and 3 incorrect predictions
     print("\nSample Correct Predictions:")
     for sample in random.sample(correct_predictions, min(3, len(correct_predictions))):
-        print(f"Review: {sample[0]}\nCleaned Review: {sample[1]}\nTrue Label: {sample[2]}, Predicted Label: {sample[3]}\n")
+        print(f"Review: {sample[0]}\nTrue Label: {sample[1]}, Predicted Label: {sample[2]}\n")
 
     print("\nSample Incorrect Predictions:")
     for sample in random.sample(incorrect_predictions, min(3, len(incorrect_predictions))):
-        print(f"Review: {sample[0]}\nCleaned Review: {sample[1]}\nTrue Label: {sample[2]}, Predicted Label: {sample[3]}\n")
+        print(f"Review: {sample[0]}\nTrue Label: {sample[1]}, Predicted Label: {sample[2]}\n")
 
 def main():
     data_path = 'data/processed/IMDB_Dataset_Cleaned.csv'
