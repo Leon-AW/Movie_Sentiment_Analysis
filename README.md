@@ -1,6 +1,6 @@
 # Movie Sentiment Analysis with Word2Vec and FastText Classifier
 
-This project implements a sentiment analysis pipeline for movie reviews using Word2Vec embeddings and a FastText-based neural network classifier. The goal is to classify movie reviews as either positive or negative based on the text content.
+I know you usually take the FastText Classifeier to train Word Embedding and Classifier simultaneously. But I wanted to do It separately to strengthen my understanding. This project implements a sentiment analysis pipeline for movie reviews using Word2Vec embeddings and then a FastText-based neural network classifier is trained on it. The goal is to classify movie reviews as either positive or negative based on the text content.
 
 ## Data
 
